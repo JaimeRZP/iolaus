@@ -1,0 +1,122 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+    "hatch-vcs",
+    "hatchling",
+]
+
+[project]
+authors = [
+    {email = "n.tessore@ucl.ac.uk", name = "Nicolas Tessore"},
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = [
+    "convolvecl",
+    "coroutines",
+    "fitsio",
+    "healpy",
+    "numba",
+    "numpy",
+]
+description = "Harmonic-space statistics on the sphere"
+dynamic = [
+    "version",
+]
+license = "LGPL-3.0-or-later"
+name = "heracles"
+optional-dependencies = {all = [
+    "rich",
+], docs = [
+    "mkdocs",
+    "mkdocs-include-markdown-plugin",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+], test = [
+    "pytest",
+    "pytest-rerunfailures",
+]}
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.scripts]
+heracles = "heracles.cli:main"
+
+[project.urls]
+Documentation = "https://heracles.readthedocs.io/"
+Homepage = "https://github.com/heracles-ec/heracles"
+Issues = "https://github.com/heracles-ec/heracles/issues"
+
+[tool.black]
+force-exclude = """
+(
+  _kmeans_radec.py
+)
+"""
+
+[tool.hatch]
+build.hooks.vcs.version-file = "heracles/_version.py"
+version.source = "vcs"
+
+[tool.pytest.ini_options]
+addopts = "--color=yes -v"
+testpaths = [
+    "tests",
+]
+
+[tool.ruff]
+extend-exclude = [
+    "_kmeans_radec.py",
+]
+fix = true
+force-exclude = true
+line-length = 100
+per-file-ignores = {"test_*" = [
+    "S101",
+]}
+select = [
+    "A",
+    "BLE",
+    "COM",
+    "DJ",
+    "DTZ",
+    "E",
+    "EM",
+    "ERA",
+    "EXE",
+    "F",
+    "I",
+    "ICN",
+    "INP",
+    "ISC",
+    "PIE",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
+    "TCH",
+    "TID",
+    "UP",
+    "W",
+    "YTT",
+]
+target-version = "py39"
+isort.known-first-party = [
+    "heracles",
+]
+mccabe.max-complexity = 18
+
+[tool.tomlsort]
+all = true
+spaces_indent_inline_array = 4
+trailing_comma_inline_array = true
+overrides."project.classifiers".inline_arrays = false

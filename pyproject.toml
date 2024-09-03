@@ -7,7 +7,7 @@ requires = [
 
 [project]
 authors = [
-    {email = "n.tessore@ucl.ac.uk", name = "Nicolas Tessore"},
+    {email = "jaime.ruiz-zapatero@ucl.ac.uk", name = "Jaime Ruiz Zapatero"},
 ]
 classifiers = [
     "Intended Audience :: Science/Research",
@@ -21,6 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Astronomy",
 ]
 dependencies = [
+    "heracles",
     "convolvecl",
     "coroutines",
     "fitsio",
@@ -33,7 +34,8 @@ dynamic = [
     "version",
 ]
 license = "LGPL-3.0-or-later"
-name = "heracles"
+<<<<<<< HEAD
+name = "iolaus"
 optional-dependencies = {all = [
     "rich",
 ], docs = [
@@ -45,26 +47,43 @@ optional-dependencies = {all = [
     "pytest",
     "pytest-rerunfailures",
 ]}
+=======
+name = "heracles"
+>>>>>>> f6c1ba3e27572c59b62b7599716ffb10343f92c4
 readme = "README.md"
 requires-python = ">=3.9"
 
+[project.optional-dependencies]
+all = [
+    "ducc0",
+    "rich",
+]
+docs = [
+    "furo",
+    "ipython",
+    "matplotlib",
+    "nbsphinx",
+    "numpydoc",
+    "sphinx",
+    "sphinxcontrib-katex",
+]
+test = [
+    "ducc0",
+    "pytest",
+    "pytest-cov",
+    "pytest-rerunfailures",
+]
+
 [project.scripts]
-heracles = "heracles.cli:main"
+iolaus = "iolaus.cli:main"
 
 [project.urls]
-Documentation = "https://heracles.readthedocs.io/"
-Homepage = "https://github.com/heracles-ec/heracles"
-Issues = "https://github.com/heracles-ec/heracles/issues"
-
-[tool.black]
-force-exclude = """
-(
-  _kmeans_radec.py
-)
-"""
+Documentation = "https://iolaus.readthedocs.io/"
+Homepage = "https://github.com/iolaus-ec/iolaus"
+Issues = "https://github.com/iolaus-ec/iolaus/issues"
 
 [tool.hatch]
-build.hooks.vcs.version-file = "heracles/_version.py"
+build.hooks.vcs.version-file = "iolaus/_version.py"
 version.source = "vcs"
 
 [tool.pytest.ini_options]
@@ -74,46 +93,15 @@ testpaths = [
 ]
 
 [tool.ruff]
-extend-exclude = [
-    "_kmeans_radec.py",
-]
-fix = true
-force-exclude = true
-line-length = 100
-per-file-ignores = {"test_*" = [
-    "S101",
-]}
-select = [
-    "A",
-    "BLE",
-    "COM",
-    "DJ",
-    "DTZ",
-    "E",
-    "EM",
-    "ERA",
-    "EXE",
-    "F",
-    "I",
-    "ICN",
-    "INP",
-    "ISC",
-    "PIE",
-    "PYI",
-    "Q",
-    "RET",
-    "RSE",
-    "TCH",
-    "TID",
-    "UP",
-    "W",
-    "YTT",
-]
+include = ["heracles/**/*.py", "pyproject.toml", "tests/**/*.py"]
 target-version = "py39"
+<<<<<<< HEAD
 isort.known-first-party = [
-    "heracles",
+    "iolaus",
 ]
 mccabe.max-complexity = 18
+=======
+>>>>>>> f6c1ba3e27572c59b62b7599716ffb10343f92c4
 
 [tool.tomlsort]
 all = true

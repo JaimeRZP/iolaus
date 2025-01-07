@@ -18,12 +18,20 @@
 # License along with Iolaus. If not, see <https://www.gnu.org/licenses/>.
 """The Iolaus command line interface."""
 import numpy as np
+import healpy as hp
 import camb
 
-def get_pars():
+def get_pars(
+        H0=67.,
+        omch2=0.270*0.67**2,
+        ombh2=0.049*0.67**2,
+        As=2.1e-9,
+        ns=0.96,
+        lmax=1000
+        ):
     pars = camb.CAMBparams()
-    pars.set_cosmology(H0=67., omch2=0.270*0.67**2, ombh2=0.049*0.67**2)
-    pars.InitPower.set_params(As=2.1e-9, ns=0.96)
+    pars.set_cosmology(H0=H0, omch2=omch2, ombh2=ombh2)
+    pars.InitPower.set_params(As=As, ns=ns)
     pars.Want_CMB = False
     pars.NonLinear = camb.model.NonLinear_both
     pars.set_for_lmax(2*lmax, lens_potential_accuracy=1)
@@ -45,24 +53,38 @@ def get_sources(z, nz, bz):
     return sources
 
 def get_theory_cls(l, pars, sources):
+    lmax = l.max()
     pars.SourceWindows = sources
     results = camb.get_results(pars)
-    cl = results.get_source_cls_dict(sources, lmax=lmax)
+    cl = results.get_source_cls_dict(lmax=lmax, raw_cl=True)
 
     fl = -np.sqrt((l+2)*(l+1)*l*(l-1))
     fl /= np.clip(l*(l+1), 1, None)
 
     theory_cls = {}
-    theory_cls[('SHE', 'SHE')] = np.array([
+    theory_cls[('POS', 'POS', 1, 1)] = np.array(
+        cl['W1xW1'],
+    )
+    theory_cls[('POS', 'SHE', 1, 1)] = np.array([
+        cl['W2xW1'] * fl,
+        np.zeros(lmax+1),
+    ])
+    theory_cls[('SHE', 'SHE', 1, 1)] = np.array([
         cl['W2xW2'] * fl**2,
         np.zeros(lmax+1),
         np.zeros(lmax+1),
     ])
-    theory_cls[('POS', 'SHE')] = np.array([
-        cl['W2xW1'] * fl,
-        np.zeros(lmax+1),
-    ])
-    theory_cls[('POS', 'POS')] = np.array([
-        cl['W1xW1'],
-    ])
-    return cl
+    return theory_cls
+
+def theory2map(theory_cls, nside):
+    tmap = hp.sphtfunc.synfast([
+        theory_cls[('POS', 'POS', 1, 1)],
+        theory_cls[('SHE', 'SHE', 1, 1)][0],
+        theory_cls[('SHE', 'SHE', 1, 1)][1],
+        theory_cls[('POS', 'SHE', 1, 1)][0]],
+        nside, new=True
+        )
+    dict_map = {}
+    dict_map[('POS', 1)] = tmap[0]
+    dict_map[('SHE', 1)] = np.array([tmap[1], tmap[2]])
+    return dict_map

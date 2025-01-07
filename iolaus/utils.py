@@ -19,6 +19,7 @@
 """The Iolaus command line interface."""
 
 import numpy as np
+import healpy as hp
 from heracles.fields import Positions, Shears, Visibility, Weights
 from heracles import transform, angular_power_spectra
 from heracles.healpy import HealpixMapper
@@ -47,7 +48,7 @@ def make_fields(mapper, mode='data'):
         fields = {
             "VIS": Visibility(mapper),
             "WHT": Weights(
-                mapper, 
+                mapper,
                 *She_lonlat,
                 'SHE_WEIGHT'
                 ),
@@ -113,3 +114,76 @@ def bin2pt(arr, bins, name):
         binned[name][x] = norm(np.bincount(i, arr[x], m)[1:m], wb)
 
     return binned
+
+def make_mask(nside, mode='patch'):
+    mask = np.ones(hp.nside2npix(nside))
+    pixel_theta, pixel_phi = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)))
+    if mode == 'patch':
+        mask[np.pi/3 > pixel_theta] = 0.0
+        mask[pixel_theta > 2*np.pi/3] = 0.0
+        mask[pixel_phi > np.pi/2] = 0.0
+        mask[np.pi/8> pixel_phi] = 0.0
+    if mode == "1/3":
+        mask[np.pi/3 > pixel_theta] = 0.0
+    if mode == "1/2":
+        mask[pixel_theta > np.pi/2] = 0.0
+    if mode == "2/3":
+        mask[2*np.pi/3 > pixel_theta] = 0.0
+    else:
+        pass
+    mask_dict = {}
+    mask_dict[("VIS", 1)] = mask
+    mask_dict[("WHT", 1)] = mask
+    return mask_dict
+
+def mask2cls(mask, nside, lmax):
+    mapper = HealpixMapper(nside=nside, lmax=lmax)
+    fields = make_fields(mapper, mode='vis')
+    alms = transform(fields, mask)
+    cls = angular_power_spectra(alms)
+    return cls
+
+def data2cls(data_map, nside, lmax):
+    mapper = HealpixMapper(nside=nside, lmax=lmax)
+    fields = make_fields(mapper, mode='data')
+    alms = transform(fields, data_map)
+    cls = angular_power_spectra(alms)
+    return cls
+
+def apply_mask(data_map, mask):
+    masked_map = {}
+    for i in range(len(list(data_map.keys()))):
+        key_map = list(data_map.keys())[i]
+        key_mask = list(mask.keys())[i]
+        m = data_map[key_map]
+        mm = mask[key_mask]
+        masked_map[key_map] = m * mm
+    return masked_map
+
+def compsep_cls(Cls):
+    """
+    Separates the SHE values into E and B modes.
+    input:
+        Cls: dictionary of Cl values
+    returns:
+        Cls_unraveled: dictionary of Cl values
+    """
+    Cls_compsep = {}
+    for key in list(Cls.keys()):
+        t1, t2, b1, b2 = key
+        cl = np.atleast_2d(Cls[key])
+        if t1 == t2 == "POS":
+            Cls_compsep[key] = cl[..., :]
+        elif t1 == t2 == "SHE" and b1 == b2:
+            Cls_compsep[("G_E", "G_E", b1, b2)] = cl[..., 0, :]
+            Cls_compsep[("G_B", "G_B", b1, b2)] = cl[..., 1, :]
+            Cls_compsep[("G_E", "G_B", b1, b2)] = cl[..., 2, :]
+        elif t1 == t2 == "SHE" and b1 != b2:
+            Cls_compsep[("G_E", "G_E", b1, b2)] = cl[..., 0, :]
+            Cls_compsep[("G_B", "G_B", b1, b2)] = cl[..., 1, :]
+            Cls_compsep[("G_E", "G_B", b1, b2)] = cl[..., 2, :]
+            Cls_compsep[("G_E", "G_B", b2, b1)] = cl[..., 3, :]
+        elif t1 == "POS" and t2 == "SHE":
+            Cls_compsep[("POS", "G_E", b1, b2)] = cl[..., 0, :]
+            Cls_compsep[("POS", "G_B", b1, b2)] = cl[..., 1, :]
+    return Cls_compsep

@@ -25,12 +25,22 @@ __all__ = [
     "make_fields",
     "get_cls",
     "bin2pt"
+    "make_mask",
+    "mask2cls",
+    "data2cls",
+    "apply_mask",
+    "compsep_cls"
+    # polspice_utils
+    "legendre_funcs",
+    "cl2corr",
+    "corr2cl",
     # theory
     "get_pars",
     "get_nz",
     "get_bz",
     "get_sources",
     "get_theory_cls",
+    "theory2map",
     # forwards
     # inversion
     # polspice
@@ -40,7 +50,12 @@ __all__ = [
 from .utils import (
     make_fields,
     get_cls,
-    bin2pt
+    bin2pt,
+    make_mask,
+    mask2cls,
+    data2cls,
+    apply_mask,
+    compsep_cls
 )
 
 from .theory import (
@@ -48,17 +63,24 @@ from .theory import (
     get_nz,
     get_bz,
     get_sources,
-    get_theory_cls
+    get_theory_cls,
+    theory2map,
 )
 
-from .forwards import (
+from .polspice_utils import (
+    legendre_funcs,
+    cl2corr,
+    corr2cl,
 )
 
-from .inversion import (
-)
+#from .forwards import (
+#)
 
-from .polspice import (
-)
+#from .inversion import (
+#)
 
-from .master import (
-)
+#from .polspice import (
+#)
+
+#from .master import (
+#)

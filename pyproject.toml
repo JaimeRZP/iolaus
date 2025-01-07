@@ -7,8 +7,9 @@ requires = [
 
 [project]
 authors = [
-    {email = "jaime.ruiz-zapatero@ucl.ac.uk", name = "Jaime Ruiz Zapatero"},
+    { name = "Jaime Ruiz Zapatero", email = "jaime.ruiz-zapatero@ucl.ac.uk"}
 ]
+
 classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
@@ -22,34 +23,19 @@ classifiers = [
 ]
 dependencies = [
     "heracles",
-    "convolvecl",
-    "coroutines",
-    "fitsio",
+    "astropy",
+    "yml",
+    "camb",
     "healpy",
-    "numba",
     "numpy",
+    "scipy",
 ]
 description = "Harmonic-space statistics on the sphere"
 dynamic = [
     "version",
 ]
 license = "LGPL-3.0-or-later"
-<<<<<<< HEAD
 name = "iolaus"
-optional-dependencies = {all = [
-    "rich",
-], docs = [
-    "mkdocs",
-    "mkdocs-include-markdown-plugin",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-], test = [
-    "pytest",
-    "pytest-rerunfailures",
-]}
-=======
-name = "heracles"
->>>>>>> f6c1ba3e27572c59b62b7599716ffb10343f92c4
 readme = "README.md"
 requires-python = ">=3.9"
 
@@ -79,8 +65,8 @@ iolaus = "iolaus.cli:main"
 
 [project.urls]
 Documentation = "https://iolaus.readthedocs.io/"
-Homepage = "https://github.com/iolaus-ec/iolaus"
-Issues = "https://github.com/iolaus-ec/iolaus/issues"
+Homepage = "https://github.com/jaimerzp/iolaus"
+Issues = "https://github.com/jaimerzp/iolaus/issues"
 
 [tool.hatch]
 build.hooks.vcs.version-file = "iolaus/_version.py"
@@ -93,15 +79,8 @@ testpaths = [
 ]
 
 [tool.ruff]
-include = ["heracles/**/*.py", "pyproject.toml", "tests/**/*.py"]
+include = ["iolaus/**/*.py", "pyproject.toml", "tests/**/*.py"]
 target-version = "py39"
-<<<<<<< HEAD
-isort.known-first-party = [
-    "iolaus",
-]
-mccabe.max-complexity = 18
-=======
->>>>>>> f6c1ba3e27572c59b62b7599716ffb10343f92c4
 
 [tool.tomlsort]
 all = true

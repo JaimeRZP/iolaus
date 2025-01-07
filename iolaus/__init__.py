@@ -20,13 +20,35 @@
 Main module of the *Iolaus* package.
 """
 
-try:
-    from ._version import __version__, __version_tuple__
-except ModuleNotFoundError:
-    __version__ = None
-    __version_tuple__ = None
+__all__ = [
+    # utils
+    "make_fields",
+    "get_cls",
+    "bin2pt"
+    # theory
+    "get_pars",
+    "get_nz",
+    "get_bz",
+    "get_sources",
+    "get_theory_cls",
+    # forwards
+    # inversion
+    # polspice
+    # master
+]
 
 from .utils import (
+    make_fields,
+    get_cls,
+    bin2pt
+)
+
+from .theory import (
+    get_pars,
+    get_nz,
+    get_bz,
+    get_sources,
+    get_theory_cls
 )
 
 from .forwards import (

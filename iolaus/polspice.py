@@ -17,3 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with DICES. If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
+
+def naive_polspice(d, m):
+    return None

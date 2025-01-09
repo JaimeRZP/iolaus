@@ -42,9 +42,15 @@ __all__ = [
     "get_theory_cls",
     "theory2map",
     # forwards
+    "Forwards",
     # inversion
-    # polspice
+    "Inversion",
     # master
+    "Master",
+    # polspice
+    "Polspice",
+    "Naive_Polspice",
+    "Eq90",
 ]
 
 from .utils import (
@@ -73,14 +79,20 @@ from .polspice_utils import (
     corr2cl,
 )
 
-#from .forwards import (
-#)
+from .forwards import (
+    Forwards,
+)
 
-#from .inversion import (
-#)
+from .inversion import (
+    Inversion,
+)
 
-#from .polspice import (
-#)
+from .master import (
+    Master,
+)
 
-#from .master import (
-#)
+from .polspice import (
+    Naive_Polspice,
+    Polspice,
+    Eq90,
+)

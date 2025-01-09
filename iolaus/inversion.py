@@ -18,7 +18,8 @@
 # License along with Iolaus. If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 
-def inversion(d, M, B, B2): 
+
+def Inversion(d, M, B, B2): 
     inversion_data_cls = {}
     for key in list(t.keys()):
         k1, k2, b1, b2 = key

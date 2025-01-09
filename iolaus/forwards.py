@@ -19,7 +19,7 @@
 import numpy as np
 
 
-def forwards(t, M, B):
+def Forwards(t, M, B):
     forward_cls = {}
     for key in list(t.keys()):
         k1, k2, b1, b2 = key

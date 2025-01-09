@@ -103,7 +103,7 @@ def cl2corr(cls, lmax=None, sampling_factor=1):
     if lmax is None:
         lmax = cls.shape[0] - 1
 
-    xvals, weights = np.polynomial.legendre.leggauss(int(sampling_factor * lmax) + 1)
+    xvals, weights = l2x(lmax, sampling_factor=sampling_factor)
 
     ls = np.arange(0, lmax + 1, dtype=np.float64)
     corrs = np.zeros((len(xvals), 4))
@@ -147,7 +147,7 @@ def corr2cl(corrs, lmax=None, sampling_factor=1):
     """
     if lmax is None:
         lmax = corrs.shape[0] - 1
-    xvals, weights = np.polynomial.legendre.leggauss(int(sampling_factor * lmax) + 1)
+    xvals, weights = l2x(lmax, sampling_factor=sampling_factor)
     # For polarization, all arrays start at 2
     ls = np.arange(2, lmax + 1, dtype=np.float64)
     lfacs = ls * (ls + 1)
@@ -167,3 +167,6 @@ def corr2cl(corrs, lmax=None, sampling_factor=1):
     cls[1, :] *= 2
     cls[2:, :] = cls[2:, :]
     return cls
+
+def l2x(lmax, sampling_factor=1)
+    return np.polynomial.legendre.leggauss(int(sampling_factor * lmax) + 1)

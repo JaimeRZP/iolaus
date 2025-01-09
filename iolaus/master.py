@@ -21,7 +21,7 @@ import numpy as np
 import .forwards as fwd
 
 
-def master(d, t, M, B, B2): 
+def Master(d, t, M, B, B2): 
     ft = fwd.forwards(t, M, B2)
     master_data_cls = {}
     master_theory_cls = {}

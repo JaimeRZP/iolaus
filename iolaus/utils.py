@@ -173,7 +173,7 @@ def compsep_cls(Cls):
         t1, t2, b1, b2 = key
         cl = np.atleast_2d(Cls[key])
         if t1 == t2 == "POS":
-            Cls_compsep[key] = cl[..., :]
+            Cls_compsep[key] = cl[..., 0, :]
         elif t1 == t2 == "SHE" and b1 == b2:
             Cls_compsep[("G_E", "G_E", b1, b2)] = cl[..., 0, :]
             Cls_compsep[("G_B", "G_B", b1, b2)] = cl[..., 1, :]

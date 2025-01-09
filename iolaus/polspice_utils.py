@@ -168,5 +168,5 @@ def corr2cl(corrs, lmax=None, sampling_factor=1):
     cls[2:, :] = cls[2:, :]
     return cls
 
-def l2x(lmax, sampling_factor=1)
+def l2x(lmax, sampling_factor=1):
     return np.polynomial.legendre.leggauss(int(sampling_factor * lmax) + 1)

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with Iolaus. If not, see <https://www.gnu.org/licenses/>.
 """The Iolaus command line interface."""
+import heracles
 import numpy as np
 import healpy as hp
 import camb
@@ -84,7 +85,56 @@ def theory2map(theory_cls, nside):
         theory_cls[('POS', 'SHE', 1, 1)][0]],
         nside, new=True
         )
+    T_map = tmap[0]
+    E_map = tmap[1]
+    B_map = tmap[2]
+    fsky=1.0
+    ngal = np.mean(T_map)
+    nbar = ngal
+    wmean = ngal
+    var = 0
+    bias = 4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+    heracles.update_metadata(T_map,
+                             ngal=ngal,
+                             nbar=nbar,
+                             wmean=wmean,
+                             bias=bias,
+                             var=var,
+                             variance=var/wmean**2,
+                             neff=ngal/(4*np.pi*fsky),
+                             fsky=fsky,
+                             spin=0)
+    ngal = np.mean(E_map)
+    nbar = ngal
+    wmean = ngal
+    var = 0
+    bias = 4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+    heracles.update_metadata(E_map,
+                             ngal=ngal,
+                             nbar=nbar,
+                             wmean=wmean,
+                             bias=bias,
+                             var=var,
+                             variance=var/wmean**2,
+                             neff=ngal/(2*np.pi*fsky),
+                             fsky=fsky,
+                             spin=2)
+    ngal = np.mean(B_map)
+    nbar = ngal
+    wmean = ngal
+    var = 0
+    bias = 4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+    heracles.update_metadata(B_map,
+                             ngal=ngal,
+                             nbar=nbar,
+                             wmean=wmean,
+                             bias=bias,
+                             var=var,
+                             variance=var/wmean**2,
+                             neff=ngal/(2*np.pi*fsky),
+                             fsky=fsky,
+                             spin=2)
     dict_map = {}
     dict_map[('POS', 1)] = tmap[0]
-    dict_map[('SHE', 1)] = np.array([tmap[1], tmap[2]])
+    dict_map[('SHE', 1)] = np.array([E_map, E_map])
     return dict_map

@@ -36,7 +36,7 @@ def Forwards(t, M, B):
                 fcls_EE,
                 fcls_BB,
                 fcls_EB,
-            ])
+            ]).T
         else:
             fcls = _M @ _t.T
         forward_cls[key] = (B @ fcls).T

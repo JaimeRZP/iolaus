@@ -21,9 +21,9 @@ import numpy as np
 
 def Inversion(d, M, B, B2): 
     inversion_data_cls = {}
-    for key in list(t.keys()):
+    for key in list(d.keys()):
         k1, k2, b1, b2 = key
-        _d = d[key] @ B.T
+        _d = d[key]
         _M = M[key]
         if k1 == k2 == "SHE":
             _M_EB = _M[2]
@@ -31,16 +31,16 @@ def Inversion(d, M, B, B2):
             _M_BB = np.hstack((_M[2], _M[1]))
             _M_EEBB = np.vstack((_M_EE, _M_BB))
             _inv_M_EEBB = np.linalg.pinv(_M_EEBB)
-            _inv_M_EB = np.lianlg.pinv(_M_EB)
+            _inv_M_EB = np.linalg.pinv(_M_EB)
             _d_EEBB = np.hstack((_d[0], _d[1]))
             _d_EB = _d[2]
-            idcls_EEBB = _d_EEBB @ _inv_M_EEBB
-            idcls_EB = _d_EB @ _inv_M_EB
-            idcls_EE = idcls_EEBB[:, :len(_d[0])]
-            idcls_BB = idcls_EEBB[:, len(_d[0]):]
-            idcls = np.array([idcls_EE, idcls_BB, idcls_EB])
+            idcls_EEBB = _inv_M_EEBB @ _d_EEBB
+            idcls_EB = _inv_M_EB @ _d_EB
+            idcls_EE = idcls_EEBB[:(2*len(_d[0]))-1]
+            idcls_BB = idcls_EEBB[(2*len(_d[0]))-1:]
+            idcls = np.array([idcls_EE, idcls_BB, idcls_EB]).T
         else:
             _inv_M_qq = np.linalg.pinv(_M)
-            idcls = _d @ _inv_M_qq
+            idcls = _inv_M_qq @ _d.T
         inversion_data_cls[key] = (B2 @ idcls).T
     return inversion_data_cls

@@ -128,7 +128,7 @@ def cl2corr(cls, lmax=None, sampling_factor=1):
         corrs[i, 1] = np.dot(cp, d22)  # Q+U
         corrs[i, 2] = np.dot(cm, d2m2)  # Q-U
         corrs[i, 3] = np.dot(cc, d20)  # cross
-    corrs[:, 0] += corrs[:, 0][0] / (4 * np.pi)
+    corrs[:, 0] += cls[:, 0][0] / (4 * np.pi)
     return corrs
 
 

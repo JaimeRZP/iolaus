@@ -20,37 +20,33 @@ import numpy as np
 from .polspice_utils import cl2corr, corr2cl, l2x
 from scipy.interpolate import interp1d
 
-def Naive_Polspice(d, m):
+def Naive_Polspice(d, m, B):
     corr_d = {}
     for key in list(d.keys()):
         k1, k2, b1, b2 = key
-        _d = np.atleast_2d(d[key])
+        _d = d[key]
         # Correct Cl by mask
         if k1 == k2 == "SHE":
             _m = m[('WHT', 'WHT', b1, b2)]
-            __m = np.array(
-                [
+            __m = np.array([
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                ]
-            )
-            wm = cl2corr(__m.T).T
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                ])
+            wm = cl2corr(__m.T).T[0]
             if b1 == b2:
-                __d = np.array(
-                    [
+                __d = np.array([
                         np.zeros_like(_d[0]),
                         _d[0],  # EE like spin-2
                         _d[1],  # BB like spin-2
                         np.zeros_like(_d[0]),
-                    ]
-                )
+                    ])
                 __id = np.array(
                     [
                         np.zeros_like(_d[0]),
                         -_d[2],  # EB like spin-0
-                        _d[2],  # EB like spin-0
+                        _d[2],   # EB like spin-0
                         np.zeros_like(_d[0]),
                     ]
                 )
@@ -64,9 +60,9 @@ def Naive_Polspice(d, m):
                 __icorr_d = corr2cl(icorr_w.T).T
                 _corr_d = np.array(
                     [
-                        __corr_d[1],  # EE like spin-2
-                        __corr_d[2],  # BB like spin-2
-                        __icorr_d[1],  # EB like spin-0
+                        B @ __corr_d[1],  # EE like spin-2
+                        B @ __corr_d[2],  # BB like spin-2
+                        B @ __icorr_d[1],  # EB like spin-0
                     ]
                 )
             if b1 != b2:
@@ -95,69 +91,61 @@ def Naive_Polspice(d, m):
                 __icorr_d = corr2cl(icorr_wd.T).T
                 _corr_d = np.array(
                     [
-                        __corr_d[1],    # EE like spin-2
-                        __corr_d[2],    # BB like spin-2
-                        __icorr_d[1],   # EB like spin-0
-                        -__icorr_d[2],  # BE like spin-0
+                        B @ __corr_d[1],    # EE like spin-2
+                        B @ __corr_d[2],    # BB like spin-2
+                        B @ __icorr_d[1],   # EB like spin-0
+                       -B @ __icorr_d[2],  # BE like spin-0
                     ]
                 )
         if k1 == k2 == "POS":
             # Treat everything as spin-0
             _m = m[('VIS', 'VIS', b1, b2)]
-            __m = np.array(
-                [
+            __m = np.array([
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                ]
-            )
-            wm = cl2corr(__m.T).T
-            __d = np.array(
-                [
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                ])
+            wm = cl2corr(__m.T).T[0]
+            __d = np.array([
                     _d,
                     np.zeros_like(_d),
                     np.zeros_like(_d),
                     np.zeros_like(_d),
-                ]
-            )
+                ])
             # Correct by mask
             wd = cl2corr(__d.T).T
             corr_wd = wd / wm
             # Transform back to Cl
             __corr_d = corr2cl(corr_wd.T).T
-            _corr_d = np.array(__corr_d[0])
+            _corr_d = B @ __corr_d[0]
         if k1 != k2:
             _m = m[('VIS', 'WHT', b1, b2)]
-            __m = np.array(
-                [
+            __m = np.array([
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                ]
-            )
-            wm = cl2corr(__m.T).T
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                ])
+            wm = cl2corr(__m.T).T[0]
             _corr_d = []
             for cl in _d:
-                __d = np.array(
-                    [
+                __d = np.array([
                         cl,
                         np.zeros_like(cl),
                         np.zeros_like(cl),
                         np.zeros_like(cl),
-                    ]
-                )
+                    ])
                 wd = cl2corr(__d.T).T
                 corr_wd = wd / wm
                 # Transform back to Cl
                 __corr_d = corr2cl(corr_wd.T).T
-                _corr_d.append(__corr_d[0])
+                _corr_d.append(B @ __corr_d[0])
             _corr_d = np.array(_corr_d)
         corr_d[key] = _corr_d
     return corr_d
 
-def Polspice(d, m):
+def Polspice(d, m, B):
     corr_d = {}
     for key in list(d.keys()):
         k1, k2, b1, b2 = key
@@ -168,9 +156,9 @@ def Polspice(d, m):
             __m = np.array(
                 [
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
                 ]
             )
             wm = cl2corr(__m.T).T
@@ -210,9 +198,9 @@ def Polspice(d, m):
                 __icorr_d = corr2cl(icorr_w.T).T
                 _corr_d = np.array(
                     [
-                        __corr_d[1],  # EE like spin-2
-                        __corr_d[2],  # BB like spin-2
-                        __icorr_d[1],  # EB like spin-0
+                        B @ __corr_d[1],  # EE like spin-2
+                        B @ __corr_d[2],  # BB like spin-2
+                        B @ __icorr_d[1],  # EB like spin-0
                     ]
                 )
             if b1 != b2:
@@ -241,10 +229,10 @@ def Polspice(d, m):
                 __icorr_d = corr2cl(icorr_wd.T).T
                 _corr_d = np.array(
                     [
-                        __corr_d[1],    # EE like spin-2
-                        __corr_d[2],    # BB like spin-2
-                        __icorr_d[1],   # EB like spin-0
-                        -__icorr_d[2],  # BE like spin-0
+                        B @ __corr_d[1],    # EE like spin-2
+                        B @ __corr_d[2],    # BB like spin-2
+                        B @ __icorr_d[1],   # EB like spin-0
+                       -B @ __icorr_d[2],  # BE like spin-0
                     ]
                 )
         if k1 == k2 == "POS":
@@ -253,9 +241,9 @@ def Polspice(d, m):
             __m = np.array(
                 [
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
                 ]
             )
             wm = cl2corr(__m.T).T
@@ -272,15 +260,15 @@ def Polspice(d, m):
             corr_wd = wd / wm
             # Transform back to Cl
             __corr_d = corr2cl(corr_wd.T).T
-            _corr_d = np.array(__corr_d[0])
+            _corr_d = np.array(B @ __corr_d[0])
         if k1 != k2:
             _m = m[('VIS', 'WHT', b1, b2)]
             __m = np.array(
                 [
                     _m,
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
-                    np.zeros_like(_m[0]),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
+                    np.zeros_like(_m),
                 ]
             )
             wm = cl2corr(__m.T).T
@@ -298,7 +286,7 @@ def Polspice(d, m):
                 corr_wd = wd / wm
                 # Transform back to Cl
                 __corr_d = corr2cl(corr_wd.T).T
-                _corr_d.append(__corr_d[0])
+                _corr_d.append(B @ __corr_d[0])
             _corr_d = np.array(_corr_d)
         corr_d[key] = _corr_d
     return corr_d

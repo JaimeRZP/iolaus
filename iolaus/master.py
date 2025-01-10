@@ -42,20 +42,20 @@ def Master(d, t, M, B, B2):
             _t_EEBB = np.hstack((_ft[0], _ft[1]))
             _d_EB = _d[2]
             _t_EB = _ft[2]
-            mdcls_EEBB = _d_EEBB @ _inv_M_qq_EEBB
-            mdcls_EB = _d_EB @ _inv_M_qq_EB
-            mtcls_EEBB = _t_EEBB @ _inv_M_qq_EEBB
-            mtcls_EB = _t_EB @ _inv_M_qq_EB
-            mdcls_EE = mdcls_EEBB[:len(_d[0])]
-            mdcls_BB = mdcls_EEBB[len(_d[0]):]
-            mtcls_EE = mtcls_EEBB[:len(_ft[0])]
-            mtcls_BB = mtcls_EEBB[len(_ft[0]):]
+            mdcls_EEBB = _inv_M_qq_EEBB @ _d_EEBB
+            mdcls_EB = _inv_M_qq_EB @ _d_EB
+            mtcls_EEBB = _inv_M_qq_EEBB @ _t_EEBB
+            mtcls_EB = _inv_M_qq_EB @ _t_EB
+            mdcls_EE = mdcls_EEBB[len(_d[0]):]
+            mdcls_BB = mdcls_EEBB[:len(_d[0])]
+            mtcls_EE = mtcls_EEBB[len(_ft[0]):]
+            mtcls_BB = mtcls_EEBB[:len(_ft[0])]
             mdcls = np.array([mdcls_EE, mdcls_BB, mdcls_EB])
             mtcls = np.array([mtcls_EE, mtcls_BB, mtcls_EB])
         else:
             _inv_M_qq = np.linalg.pinv(_M_qq)
-            mdcls = _d @ _inv_M_qq
-            mtcls = _ft @ _inv_M_qq
+            mdcls = (_inv_M_qq @ _d.T).T
+            mtcls = (_inv_M_qq @ _ft.T).T
         master_data_cls[key] = mdcls
         master_theory_cls[key] = mtcls
     return master_data_cls, master_theory_cls

@@ -26,18 +26,18 @@ def Forwards(t, M, B):
         _t = t[key]
         _M = M[key]
         if k1 == k2 == "SHE":
-            # Cl_EE = M_EE Cl_BB + M_BB Cl_EE
-            fcls_EE = _M[0] @ _t[1].T + _M[1] @ _t[0].T
-            # Cl_BB = M_EE Cl_EE + M_BB Cl_BB
-            fcls_BB = _M[0] @ _t[0].T + _M[1] @ _t[1].T
+            # Cl_EE = M_EE Cl_EE + M_BB Cl_BB
+            fcls_EE = _M[0] @ _t[0] + _M[1] @ _t[1]
+            # Cl_BB = M_EE Cl_BB + M_BB Cl_EE
+            fcls_BB = _M[0] @ _t[1] + _M[1] @ _t[0]
             # Cl_EB = M_EB Cl_EB
-            fcls_EB = _M[2] @ _t[2].T
+            fcls_EB = _M[2] @ _t[2]
             fcls = np.array([
-                fcls_EE,
-                fcls_BB,
-                fcls_EB,
-            ]).T
+                B @ fcls_EE,
+                B @ fcls_BB,
+                B @ fcls_EB,
+            ])
         else:
-            fcls = _M @ _t.T
-        forward_cls[key] = (B @ fcls).T
+            fcls = (B @ (_M @ _t.T)).T
+        forward_cls[key] = fcls
     return forward_cls

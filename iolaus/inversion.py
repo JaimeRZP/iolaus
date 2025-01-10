@@ -36,8 +36,8 @@ def Inversion(d, M, B, B2):
             _d_EB = _d[2]
             idcls_EEBB = _inv_M_EEBB @ _d_EEBB
             idcls_EB = _inv_M_EB @ _d_EB
-            idcls_EE = idcls_EEBB[:(2*len(_d[0]))-1]
-            idcls_BB = idcls_EEBB[(2*len(_d[0]))-1:]
+            idcls_EE = idcls_EEBB[(2*len(_d[0]))-1:]
+            idcls_BB = idcls_EEBB[:(2*len(_d[0]))-1]
             idcls = np.array([idcls_EE, idcls_BB, idcls_EB]).T
         else:
             _inv_M_qq = np.linalg.pinv(_M)

@@ -78,6 +78,7 @@ def get_theory_cls(l, pars, sources):
     return theory_cls
 
 def theory2map(theory_cls, nside):
+    npix = hp.nside2npix(nside)
     tmap = hp.sphtfunc.synfast([
         theory_cls[('POS', 'POS', 1, 1)],
         theory_cls[('SHE', 'SHE', 1, 1)][0],
@@ -88,35 +89,35 @@ def theory2map(theory_cls, nside):
     T_map = tmap[0]
     SHE_map = np.array([tmap[1], tmap[2]])
 
-    fsky=1.0
-    ngal = np.mean(T_map)
-    nbar = ngal
-    wmean = ngal
-    var = 0
-    bias = 4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+    fsky = 1.0
+    wmean = 0.0
+    w2mean = 0.0
+    var = 0.0
+    variance = 0.0
+    bias = 0.0 #4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+
+    ngal = np.sum(T_map)
+    nbar = (ngal * wmean) / fsky / npix
     heracles.update_metadata(T_map,
                              ngal=ngal,
                              nbar=nbar,
                              wmean=wmean,
                              bias=bias,
                              var=var,
-                             variance=var/wmean**2,
+                             variance=variance,
                              neff=ngal/(4*np.pi*fsky),
                              fsky=fsky,
                              spin=0)
 
-    ngal = np.mean(SHE_map)
-    nbar = ngal
-    wmean = ngal
-    var = 0
-    bias = 4 * np.pi * fsky**2 * (var / wmean**2) / ngal
+    ngal = np.sum(SHE_map)
+    nbar = (ngal * wmean) / fsky / npix
     heracles.update_metadata(SHE_map,
                              ngal=ngal,
                              nbar=nbar,
                              wmean=wmean,
                              bias=bias,
                              var=var,
-                             variance=var/wmean**2,
+                             variance=variance,
                              neff=ngal/(2*np.pi*fsky),
                              fsky=fsky,
                              spin=2)

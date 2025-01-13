@@ -20,7 +20,7 @@ import numpy as np
 from .polspice_utils import cl2corr, corr2cl, l2x
 from scipy.interpolate import interp1d
 
-def Naive_Polspice(d, m, B):
+def Naive_Polspice(d, m, B, patch_hole=True):
     corr_d = {}
     for key in list(d.keys()):
         k1, k2, b1, b2 = key
@@ -35,6 +35,9 @@ def Naive_Polspice(d, m, B):
                     np.zeros_like(_m),
                 ])
             wm = cl2corr(__m.T).T[0]
+            if patch_hole:
+                print("Patching holes")
+                wm *= _logistic(np.log10(np.abs(wm)))
             if b1 == b2:
                 __d = np.array([
                         np.zeros_like(_d[0]),
@@ -45,7 +48,7 @@ def Naive_Polspice(d, m, B):
                 __id = np.array(
                     [
                         np.zeros_like(_d[0]),
-                        -_d[2],  # EB like spin-0
+                       -_d[2],  # EB like spin-0
                         _d[2],   # EB like spin-0
                         np.zeros_like(_d[0]),
                     ]
@@ -61,7 +64,7 @@ def Naive_Polspice(d, m, B):
                 _corr_d = np.array(
                     [
                         B @ __corr_d[1],  # EE like spin-2
-                        B @ __corr_d[2],  # BB like spin-2
+                       -B @ __corr_d[2],  # BB like spin-2
                         B @ __icorr_d[1],  # EB like spin-0
                     ]
                 )
@@ -92,7 +95,7 @@ def Naive_Polspice(d, m, B):
                 _corr_d = np.array(
                     [
                         B @ __corr_d[1],    # EE like spin-2
-                        B @ __corr_d[2],    # BB like spin-2
+                       -B @ __corr_d[2],    # BB like spin-2
                         B @ __icorr_d[1],   # EB like spin-0
                        -B @ __icorr_d[2],  # BE like spin-0
                     ]
@@ -107,6 +110,9 @@ def Naive_Polspice(d, m, B):
                     np.zeros_like(_m),
                 ])
             wm = cl2corr(__m.T).T[0]
+            if patch_hole:
+                print("Patching holes")
+                wm *= _logistic(np.log10(np.abs(wm)))
             __d = np.array([
                     _d,
                     np.zeros_like(_d),
@@ -128,6 +134,9 @@ def Naive_Polspice(d, m, B):
                     np.zeros_like(_m),
                 ])
             wm = cl2corr(__m.T).T[0]
+            if patch_hole:
+                print("Patching holes")
+                wm *= _logistic(np.log10(np.abs(wm)))
             _corr_d = []
             for cl in _d:
                 __d = np.array([
@@ -136,6 +145,7 @@ def Naive_Polspice(d, m, B):
                         np.zeros_like(cl),
                         np.zeros_like(cl),
                     ])
+                # Correct by mask
                 wd = cl2corr(__d.T).T
                 corr_wd = wd / wm
                 # Transform back to Cl
@@ -145,7 +155,7 @@ def Naive_Polspice(d, m, B):
         corr_d[key] = _corr_d
     return corr_d
 
-def Polspice(d, m, B):
+def Polspice(d, m, B, patch_hole=True):
     corr_d = {}
     for key in list(d.keys()):
         k1, k2, b1, b2 = key
@@ -162,6 +172,8 @@ def Polspice(d, m, B):
                 ]
             )
             wm = cl2corr(__m.T).T
+            if patch_hole:
+                wm *= _logistic(np.log10(np.abs(wm)))
             if b1 == b2:
                 __d = np.array(
                     [
@@ -199,7 +211,7 @@ def Polspice(d, m, B):
                 _corr_d = np.array(
                     [
                         B @ __corr_d[1],  # EE like spin-2
-                        B @ __corr_d[2],  # BB like spin-2
+                       -B @ __corr_d[2],  # BB like spin-2
                         B @ __icorr_d[1],  # EB like spin-0
                     ]
                 )
@@ -215,12 +227,12 @@ def Polspice(d, m, B):
                 __id = np.array(
                     [
                         np.zeros_like(_d[0]),
-                        -_d[2],  # EB like spin-0
+                       -_d[2],  # EB like spin-0
                         _d[3],   # BE like spin-0
                         np.zeros_like(_d[0]),
                     ]
                 )
-                # Correct by alpha
+                # Correct by mask
                 wd = cl2corr(__d.T).T + 1j * cl2corr(__d.T).T
                 corr_wd = (wd / wm).real
                 icorr_wd = (wd / wm).imag
@@ -230,7 +242,7 @@ def Polspice(d, m, B):
                 _corr_d = np.array(
                     [
                         B @ __corr_d[1],    # EE like spin-2
-                        B @ __corr_d[2],    # BB like spin-2
+                       -B @ __corr_d[2],    # BB like spin-2
                         B @ __icorr_d[1],   # EB like spin-0
                        -B @ __icorr_d[2],  # BE like spin-0
                     ]
@@ -247,6 +259,8 @@ def Polspice(d, m, B):
                 ]
             )
             wm = cl2corr(__m.T).T
+            if patch_hole:
+                wm *= _logistic(np.log10(np.abs(wm)))
             __d = np.array(
                 [
                     _d,
@@ -272,6 +286,8 @@ def Polspice(d, m, B):
                 ]
             )
             wm = cl2corr(__m.T).T
+            if patch_hole:
+                wm *= _logistic(np.log10(np.abs(wm)))
             _corr_d = []
             for cl in _d:
                 __d = np.array(
@@ -283,6 +299,7 @@ def Polspice(d, m, B):
                     ]
                 )
                 wd = cl2corr(__d.T).T
+                # Correct by mask
                 corr_wd = wd / wm
                 # Transform back to Cl
                 __corr_d = corr2cl(corr_wd.T).T
@@ -316,3 +333,6 @@ def Eq90(cos_theta, xi_p):
     eq90_i = interp1d(x, eq90, kind='linear', fill_value="extrapolate")
     eq90 = eq90_i(cos_theta)
     return eq90
+
+def _logistic(x, x0=-2, k=50):
+        return 1.0 + np.exp(-k * (x - x0))

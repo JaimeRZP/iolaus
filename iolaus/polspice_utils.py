@@ -109,7 +109,7 @@ def cl2corr(cls, lmax=None, sampling_factor=1):
     corrs = np.zeros((len(xvals), 4))
     lfacs = ls * (ls + 1)
     lfacs[0] = 1
-    facs = (2 * ls + 1) / (4 * np.pi) * 2 * np.pi
+    facs = (2 * ls + 1) / (4 * np.pi) #* 2 * np.pi
 
     ct = facs * cls[: lmax + 1, 0]
     # For polarization, all arrays start at 2
@@ -128,7 +128,7 @@ def cl2corr(cls, lmax=None, sampling_factor=1):
         corrs[i, 1] = np.dot(cp, d22)  # Q+U
         corrs[i, 2] = np.dot(cm, d2m2)  # Q-U
         corrs[i, 3] = np.dot(cc, d20)  # cross
-    corrs[:, 0] += cls[:, 0][0] / (4 * np.pi)
+    #corrs[:, 0] += cls[:, 0][0] / (4 * np.pi)
     return corrs
 
 
@@ -166,7 +166,7 @@ def corr2cl(corrs, lmax=None, sampling_factor=1):
         cls[2:, 3] += (weight * corrs[i, 3]) * d20
     cls[1, :] *= 2
     cls[2:, :] = cls[2:, :]
-    return cls
+    return 2 * np.pi * cls
 
 def l2x(lmax, sampling_factor=1):
     return np.polynomial.legendre.leggauss(int(sampling_factor * lmax) + 1)

@@ -20,23 +20,79 @@
 Main module of the *Iolaus* package.
 """
 
-try:
-    from ._version import __version__, __version_tuple__
-except ModuleNotFoundError:
-    __version__ = None
-    __version_tuple__ = None
+__all__ = [
+    # utils
+    "make_fields",
+    "get_cls",
+    "bin2pt"
+    "make_mask",
+    "mask2cls",
+    "data2cls",
+    "apply_mask",
+    "compsep_cls"
+    # polspice_utils
+    "legendre_funcs",
+    "cl2corr",
+    "corr2cl",
+    # theory
+    "get_pars",
+    "get_nz",
+    "get_bz",
+    "get_sources",
+    "get_theory_cls",
+    "theory2map",
+    # forwards
+    "Forwards",
+    # inversion
+    "Inversion",
+    # master
+    "Master",
+    # polspice
+    "Polspice",
+    "Naive_Polspice",
+    "Eq90",
+]
 
 from .utils import (
+    make_fields,
+    get_cls,
+    bin2pt,
+    make_mask,
+    mask2cls,
+    data2cls,
+    apply_mask,
+    compsep_cls
+)
+
+from .theory import (
+    get_pars,
+    get_nz,
+    get_bz,
+    get_sources,
+    get_theory_cls,
+    theory2map,
+)
+
+from .polspice_utils import (
+    legendre_funcs,
+    cl2corr,
+    corr2cl,
 )
 
 from .forwards import (
+    Forwards,
 )
 
 from .inversion import (
-)
-
-from .polspice import (
+    Inversion,
 )
 
 from .master import (
+    Master,
+)
+
+from .polspice import (
+    Naive_Polspice,
+    Polspice,
+    Eq90,
 )

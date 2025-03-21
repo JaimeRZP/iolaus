@@ -41,6 +41,6 @@ def Inversion(d, M, B, B2):
             idcls = np.array([idcls_EE, idcls_BB, idcls_EB]).T
         else:
             _inv_M_qq = np.linalg.pinv(_M)
-            idcls = _inv_M_qq @ _d.T
+            idcls = _inv_M_qq @ _d.array.T
         inversion_data_cls[key] = (B2 @ idcls).T
     return inversion_data_cls

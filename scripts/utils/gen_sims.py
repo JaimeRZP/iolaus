@@ -1,4 +1,7 @@
 import os
+import heracles
+from heracles.healpy import HealpixMapper
+from  heracles import Positions, Shears, transform, angular_power_spectra
 import numpy as np
 import healpy as hp
 import fitsio
@@ -10,7 +13,7 @@ from camb.sources import SplinedSourceWindow
 
 # Resolution
 nside = 1024
-lmax = 1000
+lmax = 1500
 
 # Parameters
 pars = camb.CAMBparams()
@@ -38,16 +41,38 @@ l = np.arange(2*lmax+1)
 fl = -np.sqrt((l+2)*(l+1)*l*(l-1))
 fl /= np.clip(l*(l+1), 1, None)
 
-theory_cls = {}
-theory_cls[('G_B', 'G_B', 0, 0)] = np.zeros(2*lmax+1)
-theory_cls[('G_E', 'G_B', 0, 0)] = np.zeros(2*lmax+1)
-theory_cls[('G_E', 'G_E', 0, 0)] = camb_cls['W2xW2'] * fl**2
-theory_cls[('P', 'G_E', 0, 0)] = camb_cls['W2xW1'] * fl
-theory_cls[('P', 'P', 0, 0)] = camb_cls['W1xW1']
+theory = {}
+# get the full-sky spectra; B-mode is assumed zero
+cl_pp = camb_cls[f"W{2 * i - 1}xW{2 * j - 1}"]
+cl_pe = fl * camb_cls[f"W{2 * i - 1}xW{2 * j}"]
+cl_pb = np.zeros_like(cl_pe)
+cl_ep = fl * camb_cls[f"W{2 * i}xW{2 * j - 1}"]
+cl_bp = np.zeros_like(cl_ep)
+cl_ee = fl**2 * camb_cls[f"W{2 * i}xW{2 * j}"]
+cl_bb = np.zeros_like(cl_ee)
+cl_eb = np.zeros_like(cl_ee)
+cl_be = np.zeros_like(cl_ee)
+
+# all mixing matrix combinations
+key = ("POS", "POS", 0, 0)
+cl = np.array(cl_pp)
+theory[key] = heracles.Result(cl, axis=(0,))
+
+key = ("POS", "SHE", 0, 0)
+cl = np.array([cl_ep, cl_bp])
+theory[key] = heracles.Result(cl, axis=(1,))
+
+key = ("SHE", "SHE", 0, 0)
+cl = np.array(
+    [
+        [cl_ee, cl_eb],
+        [cl_be, cl_bb],
+    ]
+)
+theory[key] = heracles.Result(cl, axis=(2,))
 
 # Save Cls
-fname = "./sims/theory.npy"
-np.save(fname, theory_cls)
+heracles.write("./sims/theory_cls.fits", theory, clobber=True)
 
 for i in np.arange(1000):
     fname = "./sims/sim_{}.fits".format(i)
@@ -57,11 +82,25 @@ for i in np.arange(1000):
     else:
         # Make map
         theory_map = hp.sphtfunc.synfast([
-        theory_cls[('P', 'P', 0, 0)],
-        theory_cls[('G_E', 'G_E', 0, 0)],
-        theory_cls[('G_B', 'G_B', 0, 0)],
-        theory_cls[('P', 'G_E', 0, 0)]],
+        theory[('POS', 'POS', 0, 0)],
+        theory[('SHE', 'SHE', 0, 0)][0, 0],
+        theory[('SHE', 'SHE', 0, 0)][1, 1],
+        theory[('POS', 'SHE', 0, 0)]],
         nside, new=True)
 
+        mapper = HealpixMapper(nside, lmax)
+        fields = {
+            "P": Positions(mapper, "RIGHT_ASCENSION", "DECLINATION", mask="V"),
+            "G": Shears(mapper, "RIGHT_ASCENSION", "DECLINATION", "G1", "-G2",
+                        "WEIGHT", mask="W")}
+
+        maps = {('P', 0): theory_map[0]*mask,
+                ('G', 0): np.array([theory_map[1]*mask, theory_map[2]*mask], np.dtype(float, metadata={'spin': 2})),}
+        alms = transform(fields, maps, progress=False)
+
+        # Two-point Statistics
+        data_cls = angular_power_spectra(alms)
+
         # Save
-        hp.fitsfunc.write_map(fname, theory_map, overwrite=True)
+        data_cls = {}
+

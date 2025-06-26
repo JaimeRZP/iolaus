@@ -19,7 +19,7 @@ from heracles.core import TocDict
 
 # Resolution
 nside = 1024
-lmax = 1000
+lmax = 1500
 bin_num = 15
 
 # Select Mask
